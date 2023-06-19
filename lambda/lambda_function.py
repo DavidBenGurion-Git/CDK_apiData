@@ -2,6 +2,7 @@ import requests
 import json
 import boto3
 import os
+from datetime import datetime
 
 
 def handler(event, context):
@@ -16,7 +17,8 @@ def handler(event, context):
 
         json_data = json.dumps(data)
 
-        s3_key = 'weather_data.json'
+        current_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        s3_key = f'weather_data_{current_datetime}.json'
 
         s3 = boto3.resource('s3')
         s3.Object(bucket_name, s3_key).put(Body=json_data)
