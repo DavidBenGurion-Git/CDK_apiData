@@ -5,7 +5,6 @@ from aws_cdk import (
 )
 import aws_cdk as cdk
 
-
 class APIdataStack(cdk.Stack):
     def __init__(self, scope: cdk.App, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -32,9 +31,10 @@ class APIdataStack(cdk.Stack):
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name,
                 'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=50&lon=50&start'
-                                '=1606223802&end=1606482999&appid=57e5f883d398a3a11dd65e86c5909df4'
+                                '=315532800&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
             },
-            layers=[lambda_layer]
+            layers=[lambda_layer],
+            timeout=cdk.Duration.minutes(5)
         )
 
         apidata_bucket.grant_write(lambda_function)

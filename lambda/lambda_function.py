@@ -4,11 +4,14 @@ import boto3
 import os
 from datetime import datetime
 
-
 def handler(event, context):
     bucket_name = os.environ['BUCKET_NAME']
 
     api_endpoint = os.environ['API_ENDPOINT']
+
+    current_timestamp = int(datetime.now().timestamp())
+
+    api_endpoint = api_endpoint.replace('end=dynamic', f'end={current_timestamp}')
 
     response = requests.get(api_endpoint)
 
@@ -17,7 +20,7 @@ def handler(event, context):
 
         json_data = json.dumps(data)
 
-        current_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        current_datetime = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
         s3_key = f'weather_data_{current_datetime}.json'
 
         s3 = boto3.resource('s3')
