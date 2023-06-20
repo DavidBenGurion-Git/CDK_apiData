@@ -30,7 +30,7 @@ class APIdataStack(cdk.Stack):
             code=_lambda.Code.from_asset('lambda'),
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name,
-                'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=50&lon=50&start'
+                'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=51.5098&lon=-0.1180&start'
                                 '=315532800&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
             },
             layers=[lambda_layer],
