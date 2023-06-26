@@ -1,7 +1,7 @@
 from aws_cdk import (
     aws_lambda as _lambda,
     aws_s3 as s3,
-    aws_apigateway as apigw,
+    aws_s3_notifications as s3_notifications,
 )
 import aws_cdk as cdk
 
@@ -39,16 +39,24 @@ class APIdataStack(cdk.Stack):
 
         apidata_bucket.grant_write(lambda_function)
 
-        api = apigw.LambdaRestApi(
+        second_lambda_function = _lambda.Function(
             self,
-            'WeatherDataAPI',
-            handler=lambda_function,
-            proxy=False
+            'FlattenJsontoCSV',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+            handler='lambda_function.handler',
+            code=_lambda.Code.from_asset('lambda_2'),
+            environment={
+                'BUCKET_NAME': apidata_bucket.bucket_name
+            },
+            timeout=cdk.Duration.minutes(5)
         )
 
-        resource = api.root.add_resource('weather_data')
-        resource.add_method('GET')
+        apidata_bucket.grant_read_write(second_lambda_function)
 
+        s3_notifications.LambdaDestination(second_lambda_function).bind(apidata_bucket).bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED,
+            s3_notifications.S3EventLambdaDestination(second_lambda_function)
+        )
 
 app = cdk.App()
 APIdataStack(app, 'APIdataStack')
