@@ -23,7 +23,7 @@ def handler(event, context):
     csvdf = pd.DataFrame(flattened_data)
 
     csv_file_path = f's3://{event["bucketName"]}/processed-csv-file.csv'
-    c(df=csvdf, path=csv_file_path, index=False)
+    wr.s3.to_csv(df=csvdf, path=csv_file_path, index=False)
 
     return {
         'statusCode': 200,
