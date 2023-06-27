@@ -15,7 +15,7 @@ class APIdataStack(cdk.Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY
         )
 
-        lambda_layer = _lambda.LayerVersion(
+        lambda_layer_requests = _lambda.LayerVersion(
             self,
             "RequestsLambdaLayer",
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_7],
@@ -33,11 +33,17 @@ class APIdataStack(cdk.Stack):
                 'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=51.5098&lon=-0.1180&start'
                                 '=1606266000&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
             },
-            layers=[lambda_layer],
+            layers=[lambda_layer_requests],
             timeout=cdk.Duration.minutes(5)
         )
 
         apidata_bucket.grant_write(weather_data_pull)
+
+        pandas_layer_arn = 'arn:aws:lambda:ap-southeast-2:336392948345:layer:AWSSDKPandas-Python38:8'
+        lambda_layer_pandas = _lambda.LayerVersion.from_layer_version_arn(
+            self,
+            'PandasLayer',
+            pandas_layer_arn)
 
         convert_weather_json_to_csv = _lambda.Function(
             self,
@@ -48,6 +54,7 @@ class APIdataStack(cdk.Stack):
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name
             },
+            layers=[lambda_layer_pandas],
             timeout=cdk.Duration.minutes(5)
         )
 
