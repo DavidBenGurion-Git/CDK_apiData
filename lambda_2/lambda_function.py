@@ -2,13 +2,15 @@ import json
 import csv
 import boto3
 import os
+import pandas as pd
+import awswrangler as wr
 from datetime import datetime
 
 def handler(event, context):
     source_bucket_name = os.environ['BUCKET_NAME']
     file_key = event['Records'][0]['s3']['object']['key']
 
-    output_file_name = 'flattened_records.csv'
+    output_file_name = 'processed-csv-file'
 
     s3 = boto3.resource('s3')
     source_bucket = s3.Bucket(source_bucket_name)
@@ -18,18 +20,10 @@ def handler(event, context):
 
     flattened_data = process_json(data)
 
-    with open('/tmp/flattened_records.csv', 'w', newline='') as outfile:
-        writer = csv.writer(outfile)
-        writer.writerow(["Date", "aqi", "co", "no", "no2", "o3", "so2", "pm2_5", "pm10", "nh3"])
-        for record in flattened_data:
-            date = datetime.fromtimestamp(record['dt']).strftime('%d/%m/%Y %H:%M:%S')
-            writer.writerow(
-                [date, record['aqi'], record['co'], record['no'], record['no2'], record['o3'], record['so2'],
-                 record['pm2_5'], record['pm10'], record['nh3']])
+    csvdf = pd.DataFrame(flattened_data)
 
-    csv_data = '/tmp/flattened_records.csv'
-
-    s3.upload_file(csv_data, source_bucket, output_file_name)
+    csv_file_path = f's3://{event["bucketName"]}/processed-csv-file.csv'
+    c(df=csvdf, path=csv_file_path, index=False)
 
     return {
         'statusCode': 200,
