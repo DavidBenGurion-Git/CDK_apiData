@@ -22,9 +22,9 @@ class APIdataStack(cdk.Stack):
             code=_lambda.Code.from_asset("requests"),
         )
 
-        lambda_function = _lambda.Function(
+        weather_data_pull = _lambda.Function(
             self,
-            'APIDataLambda',
+            'weather-data-pull',
             runtime=_lambda.Runtime.PYTHON_3_7,
             handler='lambda_function.handler',
             code=_lambda.Code.from_asset('lambda'),
@@ -37,11 +37,11 @@ class APIdataStack(cdk.Stack):
             timeout=cdk.Duration.minutes(5)
         )
 
-        apidata_bucket.grant_write(lambda_function)
+        apidata_bucket.grant_write(weather_data_pull)
 
-        second_lambda_function = _lambda.Function(
+        convert_weather_json_to_csv = _lambda.Function(
             self,
-            'FlattenJsontoCSV',
+            'convert-weather-json-to-csv',
             runtime=_lambda.Runtime.PYTHON_3_7,
             handler='lambda_function.handler',
             code=_lambda.Code.from_asset('lambda_2'),
@@ -51,12 +51,10 @@ class APIdataStack(cdk.Stack):
             timeout=cdk.Duration.minutes(5)
         )
 
-        apidata_bucket.grant_read_write(second_lambda_function)
+        apidata_bucket.grant_read_write(convert_weather_json_to_csv)
 
-        s3_notifications.LambdaDestination(second_lambda_function).bind(apidata_bucket).bucket.add_event_notification(
-            s3.EventType.OBJECT_CREATED,
-            s3_notifications.S3EventLambdaDestination(second_lambda_function)
-        )
+        notification = s3_notifications.LambdaDestination(convert_weather_json_to_csv)
+        bucket.add_event_notification(s3.EventType.OBJECT_CREATED, notification)
 
 app = cdk.App()
 APIdataStack(app, 'APIdataStack')
