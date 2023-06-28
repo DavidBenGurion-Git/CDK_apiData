@@ -1,7 +1,7 @@
 from aws_cdk import (
     aws_lambda as _lambda,
     aws_s3 as s3,
-    aws_apigateway as apigw,
+    aws_s3_notifications as s3_notifications,
 )
 import aws_cdk as cdk
 
@@ -15,16 +15,16 @@ class APIdataStack(cdk.Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY
         )
 
-        lambda_layer = _lambda.LayerVersion(
+        lambda_layer_requests = _lambda.LayerVersion(
             self,
             "RequestsLambdaLayer",
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_7],
             code=_lambda.Code.from_asset("requests"),
         )
 
-        lambda_function = _lambda.Function(
+        weather_data_pull = _lambda.Function(
             self,
-            'APIDataLambda',
+            'weather-data-pull',
             runtime=_lambda.Runtime.PYTHON_3_7,
             handler='lambda_function.handler',
             code=_lambda.Code.from_asset('lambda'),
@@ -33,22 +33,35 @@ class APIdataStack(cdk.Stack):
                 'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=51.5098&lon=-0.1180&start'
                                 '=1606266000&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
             },
-            layers=[lambda_layer],
+            layers=[lambda_layer_requests],
             timeout=cdk.Duration.minutes(5)
         )
 
-        apidata_bucket.grant_write(lambda_function)
+        apidata_bucket.grant_write(weather_data_pull)
 
-        api = apigw.LambdaRestApi(
+        pandas_layer_arn = 'arn:aws:lambda:ap-southeast-2:336392948345:layer:AWSSDKPandas-Python38:8'
+        lambda_layer_pandas = _lambda.LayerVersion.from_layer_version_arn(
             self,
-            'WeatherDataAPI',
-            handler=lambda_function,
-            proxy=False
+            'PandasLayer',
+            pandas_layer_arn)
+
+        convert_weather_json_to_csv = _lambda.Function(
+            self,
+            'convert-weather-json-to-csv',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+            handler='lambda_function.handler',
+            code=_lambda.Code.from_asset('lambda_2'),
+            environment={
+                'BUCKET_NAME': apidata_bucket.bucket_name
+            },
+            layers=[lambda_layer_pandas],
+            timeout=cdk.Duration.minutes(5)
         )
 
-        resource = api.root.add_resource('weather_data')
-        resource.add_method('GET')
+        apidata_bucket.grant_read_write(convert_weather_json_to_csv)
 
+        notification = s3_notifications.LambdaDestination(convert_weather_json_to_csv)
+        bucket.add_event_notification(s3.EventType.OBJECT_CREATED, notification)
 
 app = cdk.App()
 APIdataStack(app, 'APIdataStack')
