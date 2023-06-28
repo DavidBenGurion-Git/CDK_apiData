@@ -61,7 +61,7 @@ class APIdataStack(cdk.Stack):
         apidata_bucket.grant_read_write(convert_weather_json_to_csv)
 
         notification = s3_notifications.LambdaDestination(convert_weather_json_to_csv)
-        bucket.add_event_notification(s3.EventType.OBJECT_CREATED, notification)
+        apidata_bucket.add_event_notification(s3.EventType.OBJECT_CREATED, notification)
 
 app = cdk.App()
 APIdataStack(app, 'APIdataStack')
