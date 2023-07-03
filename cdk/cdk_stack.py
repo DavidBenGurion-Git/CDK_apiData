@@ -39,7 +39,7 @@ class APIdataStack(cdk.Stack):
 
         apidata_bucket.grant_write(weather_data_pull)
 
-        pandas_layer_arn = 'arn:aws:lambda:ap-southeast-2:336392948345:layer:AWSSDKPandas-Python38:8'
+        pandas_layer_arn = 'arn:aws:lambda:ap-southeast-2:336392948345:layer:AWSSDKPandas-Python37:5'
         lambda_layer_pandas = _lambda.LayerVersion.from_layer_version_arn(
             self,
             'PandasLayer',
