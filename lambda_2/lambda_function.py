@@ -1,14 +1,14 @@
 import json
-import csv
 import boto3
 import os
 import pandas as pd
 import awswrangler as wr
+import urllib
 from datetime import datetime
 
 def handler(event, context):
     source_bucket_name = os.environ['BUCKET_NAME']
-    file_key = event['Records'][0]['s3']['object']['key']
+    file_key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'],encoding="utf-8")
 
     output_file_name = 'processed-csv-file'
 
@@ -22,7 +22,7 @@ def handler(event, context):
 
     csvdf = pd.DataFrame(flattened_data)
 
-    csv_file_path = f's3://{event["bucketName"]}/processed-csv-file.csv'
+    csv_file_path = f's3://{source_bucket_name}/processed-csv-file.csv'
     wr.s3.to_csv(df=csvdf, path=csv_file_path, index=False)
 
     return {
@@ -34,8 +34,9 @@ def process_json(json_content):
     flattened_records = []
 
     for item in json_content['list']:
+        timestamp = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y %H:%M:%S')
         record = {
-            "dt": item['dt'],
+            "Date": timestamp,
             "aqi": item['main']['aqi'],
             "co": item['components']['co'],
             "no": item['components']['no'],
