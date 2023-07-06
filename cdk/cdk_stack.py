@@ -54,6 +54,7 @@ class APIdataStack(cdk.Stack):
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name
             },
+            memory_size=1024,
             layers=[lambda_layer_pandas],
             timeout=cdk.Duration.minutes(5)
         )
