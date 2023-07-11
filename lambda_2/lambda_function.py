@@ -36,6 +36,7 @@ def process_json(json_content):
     for item in json_content['list']:
         timestamp = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y %H:%M:%S')
         record = {
+            "Location": item['location'],
             "Date": timestamp,
             "aqi": item['main']['aqi'],
             "co": item['components']['co'],
