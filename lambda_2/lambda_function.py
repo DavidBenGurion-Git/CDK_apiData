@@ -34,9 +34,37 @@ def process_json(json_content):
     flattened_records = []
 
     for item in json_content['list']:
+        location = item['location']
+        latitude = None
+        longitude = None
+
+        if location == 'London':
+            latitude = 51.5098
+            longitude = -0.1180
+        elif location == 'Paris':
+            latitude = 48.8588897
+            longitude = 2.3200410217200766
+        elif location == 'Brussels':
+            latitude = 50.8465573
+            longitude = 4.351697
+        elif location == 'Madrid':
+            latitude = 40.4167047
+            longitude = -3.7035825
+        elif location == 'Budapest':
+            latitude = 47.48138955
+            longitude = 19.14609412691246
+        elif location == 'Oslo':
+            latitude = 59.97239745
+            longitude = 10.775729194051895
+        else:
+            latitude = 0.0
+            longitude = 0.0
+
         timestamp = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y %H:%M:%S')
         record = {
-            "Location": item['location'],
+            "Location": location,
+            "Latitude": latitude,
+            "Longitude": longitude,
             "Date": timestamp,
             "aqi": item['main']['aqi'],
             "co": item['components']['co'],
