@@ -37,6 +37,7 @@ def process_json(json_content):
         location = item['location']
         latitude = None
         longitude = None
+        country = None
 
         if location == 'London':
             latitude = 51.5098
@@ -60,11 +61,27 @@ def process_json(json_content):
             latitude = 0.0
             longitude = 0.0
 
+        if location == 'London':
+            country = 'United Kingdom'
+        elif location == 'Paris':
+            country = 'France'
+        elif location == 'Brussels':
+            country = 'Belgium'
+        elif location == 'Madrid':
+            country = 'Spain'
+        elif location == 'Budapest':
+            country = 'Hungary'
+        elif location == 'Oslo':
+            country = 'Norway'
+        else:
+            country = 'N/A'
+
         timestamp = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y %H:%M:%S')
         record = {
             "Location": location,
             "Latitude": latitude,
             "Longitude": longitude,
+            "Country": country,
             "Date": timestamp,
             "aqi": item['main']['aqi'],
             "co": item['components']['co'],
