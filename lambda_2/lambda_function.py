@@ -6,9 +6,10 @@ import awswrangler as wr
 import urllib
 from datetime import datetime
 
+
 def handler(event, context):
     source_bucket_name = os.environ['BUCKET_NAME']
-    file_key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'],encoding="utf-8")
+    file_key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding="utf-8")
 
     output_file_name = 'processed-csv-file'
 
@@ -30,51 +31,50 @@ def handler(event, context):
         'body': f'CSV file {output_file_name} saved in S3 bucket'
     }
 
+
 def process_json(json_content):
     flattened_records = []
 
+    location_mappings = {
+        'London': {
+            'latitude': 51.5098,
+            'longitude': -0.1180,
+            'country': 'United Kingdom'
+        },
+        'Paris': {
+            'latitude': 48.8588897,
+            'longitude': 2.3200410217200766,
+            'country': 'France'
+        },
+        'Brussels': {
+            'latitude': 50.8465573,
+            'longitude': 4.351697,
+            'country': 'Belgium'
+        },
+        'Madrid': {
+            'latitude': 40.4167047,
+            'longitude': -3.7035825,
+            'country': 'Spain'
+        },
+        'Budapest': {
+            'latitude': 47.48138955,
+            'longitude': 19.14609412691246,
+            'country': 'Hungary'
+        },
+        'Oslo': {
+            'latitude': 59.97239745,
+            'longitude': 10.775729194051895,
+            'country': 'Norway'
+        }
+    }
+
     for item in json_content['list']:
         location = item['location']
-        latitude = None
-        longitude = None
-        country = None
+        location_data = location_mappings.get(location, {'latitude': 0.0, 'longitude': 0.0, 'country': 'N/A'})
 
-        if location == 'London':
-            latitude = 51.5098
-            longitude = -0.1180
-        elif location == 'Paris':
-            latitude = 48.8588897
-            longitude = 2.3200410217200766
-        elif location == 'Brussels':
-            latitude = 50.8465573
-            longitude = 4.351697
-        elif location == 'Madrid':
-            latitude = 40.4167047
-            longitude = -3.7035825
-        elif location == 'Budapest':
-            latitude = 47.48138955
-            longitude = 19.14609412691246
-        elif location == 'Oslo':
-            latitude = 59.97239745
-            longitude = 10.775729194051895
-        else:
-            latitude = 0.0
-            longitude = 0.0
-
-        if location == 'London':
-            country = 'United Kingdom'
-        elif location == 'Paris':
-            country = 'France'
-        elif location == 'Brussels':
-            country = 'Belgium'
-        elif location == 'Madrid':
-            country = 'Spain'
-        elif location == 'Budapest':
-            country = 'Hungary'
-        elif location == 'Oslo':
-            country = 'Norway'
-        else:
-            country = 'N/A'
+        latitude = location_data['latitude']
+        longitude = location_data['longitude']
+        country = location_data['country']
 
         timestamp = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y %H:%M:%S')
         record = {

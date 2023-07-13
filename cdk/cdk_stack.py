@@ -30,17 +30,7 @@ class APIdataStack(cdk.Stack):
             code=_lambda.Code.from_asset('lambda'),
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name,
-                'API_ENDPOINT_1': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=51.5098&lon=-0.1180&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4',
-                'API_ENDPOINT_2': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=48.8588897&lon=2.3200410217200766&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4',
-                'API_ENDPOINT_3': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=50.8465573&lon=4.351697&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4',
-                'API_ENDPOINT_4': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=40.4167047&lon=-3.7035825&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4',
-                'API_ENDPOINT_5': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=47.48138955&lon=19.14609412691246&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4',
-                'API_ENDPOINT_6': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat=59.97239745&lon=10.775729194051895&start'
+                'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}&start'
                                 '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
             },
             layers=[lambda_layer_requests],
