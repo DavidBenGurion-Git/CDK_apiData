@@ -10,12 +10,10 @@ def handler(event, context):
 
     latitudes = [51.5098, 48.8588897, 50.8465573, 40.4167047, 47.48138955, 59.97239745]
     longitudes = [-0.1180, 2.3200410217200766, 4.351697, -3.7035825, 19.14609412691246, 10.775729194051895]
-
+    locations = ["London", "Paris", "Brussels", "Madrid", "Budapest", "Oslo"]
     current_timestamp = int(datetime.now().timestamp())
 
     response_data = []
-    locations = ["London", "Paris", "Brussels", "Madrid", "Budapest", "Oslo"]
-
     for i in range(len(latitudes)):
         lat = latitudes[i]
         lon = longitudes[i]

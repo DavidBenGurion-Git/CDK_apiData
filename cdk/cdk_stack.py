@@ -2,12 +2,21 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_s3 as s3,
     aws_s3_notifications as s3_notifications,
+    aws_secretsmanager as secretsmanager,
+    aws_events as events,
+    aws_events_targets as targets,
 )
 import aws_cdk as cdk
 
 class APIdataStack(cdk.Stack):
     def __init__(self, scope: cdk.App, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
+
+        secret_name = "internship/apikey"
+        secret_key = "appid"
+        secret_value = secretsmanager.Secret.from_secret_name_v2(
+            self, 'SecretValue', secret_name
+        ).secret_value_from_json(secret_key).to_string()
 
         apidata_bucket = s3.Bucket(
             self,
@@ -30,8 +39,8 @@ class APIdataStack(cdk.Stack):
             code=_lambda.Code.from_asset('lambda'),
             environment={
                 'BUCKET_NAME': apidata_bucket.bucket_name,
-                'API_ENDPOINT': 'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}&start'
-                                '=1672531200&end=dynamic&appid=57e5f883d398a3a11dd65e86c5909df4'
+                'API_ENDPOINT': f'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={{lat}}&lon={{lon}}&start'
+                                f'=1672531200&end=dynamic&appid={secret_value}'
             },
             layers=[lambda_layer_requests],
             timeout=cdk.Duration.minutes(5)
@@ -57,6 +66,18 @@ class APIdataStack(cdk.Stack):
             memory_size=1024,
             layers=[lambda_layer_pandas],
             timeout=cdk.Duration.minutes(5)
+        )
+
+        schedule_expression = 'cron(0 0 * * ? *)'
+
+        rule = events.Rule(
+            self,
+            'WeatherDataPullSchedule',
+            schedule=events.Schedule.expression(schedule_expression)
+        )
+
+        rule.add_target(
+            targets.LambdaFunction(weather_data_pull)
         )
 
         apidata_bucket.grant_read_write(convert_weather_json_to_csv)
