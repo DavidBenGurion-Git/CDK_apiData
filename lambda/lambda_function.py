@@ -14,6 +14,7 @@ def handler(event, context):
     current_timestamp = int(datetime.now().timestamp())
 
     response_data = []
+    locations = ["London", "Paris", "Brussels", "Madrid", "Budapest", "Oslo"]
 
     for i in range(len(latitudes)):
         lat = latitudes[i]
@@ -22,19 +23,15 @@ def handler(event, context):
 
         response = requests.get(endpoint)
         if response.status_code == 200:
-            response_data.append(response.json())
+            data = response.json()
+            for item in data["list"]:
+                item["location"] = locations[i]
+            response_data.append(data)
         else:
             return {
                 'statusCode': 500,
                 'body': 'Failed to fetch data from API'
             }
-
-    locations = ["London", "Paris", "Brussels", "Madrid", "Budapest", "Oslo"]
-
-    for i in range(len(response_data)):
-        data = response_data[i]
-        for item in data["list"]:
-            item["location"] = locations[i]
 
     merged_data = {
         'coord': response_data[0]['coord'],
