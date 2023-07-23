@@ -9,7 +9,8 @@ using Quicksight. The process diagram is shown below:
 ![Process Architecture](architecture.png)
 
 <ul style="list-style-type:circle">
-  <li>Step 1: <br> This the the best</li>
-  <li>Tea</li>
+  <li>Step 1: <br> The API data account is set up with a secret API key.</li>
+  <li>Step 2: <br> API endpoint url is used with the corresponding API key stored in secrets manager by a lambda function which preprocesses the ingested data and converts it into a suitable JSON file. EventsBridge is set up along with this function
+  for invocation daily to have the latest data.</li>
   <li>Milk</li>
 </ul>
