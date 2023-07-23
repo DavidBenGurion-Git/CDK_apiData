@@ -5,4 +5,5 @@ The JSON file is then preprocessed using a lambda function and stored in an S3 b
 to automatically get invoked whenever an object is created into the S3 bucket mentioned earlier. Using a manifest file placed inside the same s3 bucket and the CSV file output from the second lambda function, detailed dashboards and analysis are carried out
 using Quicksight. The process diagram is shown below:
 </p>
+
 ![Process Architecture](architecture.png)
