@@ -9,7 +9,7 @@ using Quicksight. The process diagram is shown below:
 ![Process Architecture](architecture.png)
 
 <ul style="list-style-type:circle">
-  <li>Coffee</li>
+  <li>Step 1: <br> This the the best</li>
   <li>Tea</li>
   <li>Milk</li>
 </ul>
